@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Pricing Calculator - Distribution Strategy</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .tier-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 30px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .tier-card.featured {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+
+        .tier-badge {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .tier-title {
+            font-size: 1.8em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .tier-price {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .tier-per-user {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .breakdown {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .breakdown-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .breakdown-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .breakdown-value {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .percentage {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            margin-left: 8px;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .summary-card {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .summary-card h3 {
+            font-size: 1em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .summary-card .value {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .strategy-tips {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .strategy-tips h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .strategy-tips ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .strategy-tips li {
+            padding: 8px 0;
+            color: #856404;
+        }
+
+        .strategy-tips li:before {
+            content: "💡 ";
+            margin-right: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tier-price {
+                font-size: 2em;
+            }
+        }
+
+        .gap-indicator {
+            text-align: center;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-weight: 600;
+            color: #2e7d32;
+        }
+
+        .bonus-section {
+            background: #fff9c4;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #fbc02d;
+        }
+
+        .bonus-section h4 {
+            color: #f57f17;
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .bonus-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+            font-size: 0.9em;
+            color: #f57f17;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 SaaS Pricing Strategy Calculator</h1>
+            <p>Optimized for Maximum Tier 2 Sales</p>
+        </div>
+
+        <div class="content">
+            <div class="pricing-grid">
+                <!-- TIER 1 -->
+                <div class="tier-card" id="tier1">
+                    <h2 class="tier-title">BASIC</h2>
+                    <div class="tier-price" id="tier1-price">₹59,990</div>
+                    <div class="tier-per-user" id="tier1-per-user">₹5,999/user</div>
+                    
+                    <div class="input-group">
+                        <label>End User Price (10 users)</label>
+                        <input type="number" id="tier1-end-price" value="59990" oninput="calculateTier(1)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Dev Cost %</label>
+                        <input type="number" id="tier1-dev-percent" value="40" step="0.1" oninput="calculateTier(1)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Your Profit %</label>
+                        <input type="number" id="tier1-profit-percent" value="35" step="0.1" oninput="calculateTier(1)">
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Dev Cost</span>
+                            <span class="breakdown-value" id="tier1-dev-cost">₹24,000 <span class="percentage">40%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Your Profit</span>
+                            <span class="breakdown-value" id="tier1-profit">₹21,000 <span class="percentage">35%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distribution Price</span>
+                            <span class="breakdown-value" id="tier1-dist-price">₹45,000</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distributor Profit</span>
+                            <span class="breakdown-value" id="tier1-dist-profit">₹14,990 <span class="percentage">25%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-section">
+                        <h4>🎁 Volume Bonus (5+ sold)</h4>
+                        <div class="bonus-row">
+                            <span>Bonus:</span>
+                            <span>+₹500</span>
+                        </div>
+                        <div class="bonus-row">
+                            <span>Max Profit:</span>
+                            <span id="tier1-max-profit">₹15,490</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIER 2 -->
+                <div class="tier-card featured" id="tier2">
+                    <div class="tier-badge">🎯 BEST VALUE</div>
+                    <h2 class="tier-title">STANDARD</h2>
+                    <div class="tier-price" id="tier2-price">₹74,990</div>
+                    <div class="tier-per-user" id="tier2-per-user">₹7,499/user</div>
+                    
+                    <div class="gap-indicator" id="gap1">Gap from Tier 1: +₹15,000 (25%)</div>
+                    
+                    <div class="input-group">
+                        <label>End User Price (10 users)</label>
+                        <input type="number" id="tier2-end-price" value="74990" oninput="calculateTier(2)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Dev Cost %</label>
+                        <input type="number" id="tier2-dev-percent" value="42" step="0.1" oninput="calculateTier(2)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Your Profit %</label>
+                        <input type="number" id="tier2-profit-percent" value="31.3" step="0.1" oninput="calculateTier(2)">
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Dev Cost</span>
+                            <span class="breakdown-value" id="tier2-dev-cost">₹31,500 <span class="percentage">42%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Your Profit</span>
+                            <span class="breakdown-value" id="tier2-profit">₹23,490 <span class="percentage">31.3%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distribution Price</span>
+                            <span class="breakdown-value" id="tier2-dist-price">₹55,000</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distributor Profit</span>
+                            <span class="breakdown-value" id="tier2-dist-profit">₹19,990 <span class="percentage">26.7%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-section">
+                        <h4>🔥 Volume Bonus (5+ sold)</h4>
+                        <div class="bonus-row">
+                            <span>Bonus:</span>
+                            <span>+₹3,000</span>
+                        </div>
+                        <div class="bonus-row">
+                            <span><strong>Max Profit:</strong></span>
+                            <span id="tier2-max-profit"><strong>₹22,990</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TIER 3 -->
+                <div class="tier-card" id="tier3">
+                    <h2 class="tier-title">PREMIUM</h2>
+                    <div class="tier-price" id="tier3-price">₹99,990</div>
+                    <div class="tier-per-user" id="tier3-per-user">₹9,999/user</div>
+                    
+                    <div class="gap-indicator" id="gap2">Gap from Tier 2: +₹25,000 (33%)</div>
+                    
+                    <div class="input-group">
+                        <label>End User Price (10 users)</label>
+                        <input type="number" id="tier3-end-price" value="99990" oninput="calculateTier(3)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Dev Cost %</label>
+                        <input type="number" id="tier3-dev-percent" value="45" step="0.1" oninput="calculateTier(3)">
+                    </div>
+
+                    <div class="input-group">
+                        <label>Your Profit %</label>
+                        <input type="number" id="tier3-profit-percent" value="28.5" step="0.1" oninput="calculateTier(3)">
+                    </div>
+
+                    <div class="breakdown">
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Dev Cost</span>
+                            <span class="breakdown-value" id="tier3-dev-cost">₹45,000 <span class="percentage">45%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Your Profit</span>
+                            <span class="breakdown-value" id="tier3-profit">₹28,500 <span class="percentage">28.5%</span></span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distribution Price</span>
+                            <span class="breakdown-value" id="tier3-dist-price">₹73,500</span>
+                        </div>
+                        <div class="breakdown-row">
+                            <span class="breakdown-label">Distributor Profit</span>
+                            <span class="breakdown-value" id="tier3-dist-profit">₹26,490 <span class="percentage">26.5%</span></span>
+                        </div>
+                    </div>
+
+                    <div class="bonus-section">
+                        <h4>🎁 Volume Bonus (5+ sold)</h4>
+                        <div class="bonus-row">
+                            <span>Bonus:</span>
+                            <span>+₹1,000</span>
+                        </div>
+                        <div class="bonus-row">
+                            <span>Max Profit:</span>
+                            <span id="tier3-max-profit">₹27,490</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-section">
+                <h2>📊 Summary & Projections</h2>
+                <div class="summary-grid">
+                    <div class="summary-card">
+                        <h3>Expected Sales Mix</h3>
+                        <div class="value">25% / 60% / 15%</div>
+                        <p style="opacity: 0.8; margin-top: 10px; font-size: 0.9em;">
+                            Tier 1 / Tier 2 / Tier 3
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Avg. Your Profit/Sale</h3>
+                        <div class="value" id="avg-profit">₹23,622</div>
+                        <p style="opacity: 0.8; margin-top: 10px; font-size: 0.9em;">
+                            Based on expected mix
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Avg. Dist. Profit/Sale</h3>
+                        <div class="value" id="avg-dist-profit">₹20,466</div>
+                        <p style="opacity: 0.8; margin-top: 10px; font-size: 0.9em;">
+                            Without bonuses
+                        </p>
+                    </div>
+                    <div class="summary-card">
+                        <h3>Your Profit (100 Sales)</h3>
+                        <div class="value" id="total-profit">₹23,62,200</div>
+                        <p style="opacity: 0.8; margin-top: 10px; font-size: 0.9em;">
+                            Based on expected mix
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-tips">
+                <h3>💡 Why This Pricing Strategy Works</h3>
+                <ul>
+                    <li><strong>Small T1→T2 gap (₹15k)</strong> makes upgrade feel affordable</li>
+                    <li><strong>Large T2→T3 gap (₹25k)</strong> makes T3 feel expensive</li>
+                    <li><strong>Tier 2 positioned as "best value"</strong> - most customers choose it</li>
+                    <li><strong>Higher T2 bonuses</strong> motivate distributors to push it</li>
+                    <li><strong>60% expected T2 sales</strong> = predictable revenue</li>
+                </ul>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Print Pricing Sheet</button>
+                <button class="btn btn-secondary" onclick="resetToDefault()">🔄 Reset to Default</button>
+                <button class="btn btn-secondary" onclick="exportToCSV()">📥 Export to CSV</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatINR(num) {
+            return '₹' + num.toLocaleString('en-IN');
+        }
+
+        function calculateTier(tier) {
+            const endPrice = parseFloat(document.getElementById(`tier${tier}-end-price`).value);
+            const devPercent = parseFloat(document.getElementById(`tier${tier}-dev-percent`).value);
+            const profitPercent = parseFloat(document.getElementById(`tier${tier}-profit-percent`).value);
+            
+            // Calculate distributor margin (what's left)
+            const distPercent = 100 - devPercent - profitPercent;
+            
+            // Calculate amounts
+            const devCost = Math.round(endPrice * (devPercent / 100));
+            const yourProfit = Math.round(endPrice * (profitPercent / 100));
+            const distPrice = devCost + yourProfit;
+            const distProfit = endPrice - distPrice;
+            const actualDistPercent = ((distProfit / endPrice) * 100).toFixed(1);
+            
+            // Bonuses
+            const bonuses = {1: 500, 2: 3000, 3: 1000};
+            const maxProfit = distProfit + bonuses[tier];
+            
+            // Update display
+            document.getElementById(`tier${tier}-price`).textContent = formatINR(endPrice);
+            document.getElementById(`tier${tier}-per-user`).textContent = formatINR(Math.round(endPrice/10)) + '/user';
+            
+            document.getElementById(`tier${tier}-dev-cost`).innerHTML = 
+                `${formatINR(devCost)} <span class="percentage">${devPercent}%</span>`;
+            document.getElementById(`tier${tier}-profit`).innerHTML = 
+                `${formatINR(yourProfit)} <span class="percentage">${profitPercent}%</span>`;
+            document.getElementById(`tier${tier}-dist-price`).textContent = formatINR(distPrice);
+            document.getElementById(`tier${tier}-dist-profit`).innerHTML = 
+                `${formatINR(distProfit)} <span class="percentage">${actualDistPercent}%</span>`;
+            document.getElementById(`tier${tier}-max-profit`).textContent = formatINR(maxProfit);
+            
+            // Update gaps
+            if (tier === 2) {
+                const tier1Price = parseFloat(document.getElementById('tier1-end-price').value);
+                const gap = endPrice - tier1Price;
+                const gapPercent = ((gap / tier1Price) * 100).toFixed(1);
+                document.getElementById('gap1').textContent = `Gap from Tier 1: +${formatINR(gap)} (${gapPercent}%)`;
+            }
+            
+            if (tier === 3) {
+                const tier2Price = parseFloat(document.getElementById('tier2-end-price').value);
+                const gap = endPrice - tier2Price;
+                const gapPercent = ((gap / tier2Price) * 100).toFixed(1);
+                document.getElementById('gap2').textContent = `Gap from Tier 2: +${formatINR(gap)} (${gapPercent}%)`;
+            }
+            
+            // Update summary
+            updateSummary();
+        }
+
+        function updateSummary() {
+            // Get all profits
+            const tier1Profit = parseFloat(document.getElementById('tier1-profit').textContent.replace(/[₹,]/g, ''));
+            const tier2Profit = parseFloat(document.getElementById('tier2-profit').textContent.replace(/[₹,]/g, ''));
+            const tier3Profit = parseFloat(document.getElementById('tier3-profit').textContent.replace(/[₹,]/g, ''));
+            
+            const tier1DistProfit = parseFloat(document.getElementById('tier1-dist-profit').textContent.replace(/[₹,]/g, ''));
+            const tier2DistProfit = parseFloat(document.getElementById('tier2-dist-profit').textContent.replace(/[₹,]/g, ''));
+            const tier3DistProfit = parseFloat(document.getElementById('tier3-dist-profit').textContent.replace(/[₹,]/g, ''));
+            
+            // Calculate averages (25/60/15 mix)
+            const avgProfit = Math.round((tier1Profit * 0.25) + (tier2Profit * 0.60) + (tier3Profit * 0.15));
+            const avgDistProfit = Math.round((tier1DistProfit * 0.25) + (tier2DistProfit * 0.60) + (tier3DistProfit * 0.15));
+            const totalProfit = avgProfit * 100;
+            
+            document.getElementById('avg-profit').textContent = formatINR(avgProfit);
+            document.getElementById('avg-dist-profit').textContent = formatINR(avgDistProfit);
+            document.getElementById('total-profit').textContent = formatINR(totalProfit);
+        }
+
+        function resetToDefault() {
+            document.getElementById('tier1-end-price').value = 59990;
+            document.getElementById('tier1-dev-percent').value = 40;
+            document.getElementById('tier1-profit-percent').value = 35;
+            
+            document.getElementById('tier2-end-price').value = 74990;
+            document.getElementById('tier2-dev-percent').value = 42;
+            document.getElementById('tier2-profit-percent').value = 31.3;
+            
+            document.getElementById('tier3-end-price').value = 99990;
+            document.getElementById('tier3-dev-percent').value = 45;
+            document.getElementById('tier3-profit-percent').value = 28.5;
+            
+            calculateTier(1);
+            calculateTier(2);
+            calculateTier(3);
+        }
+
+        function exportToCSV() {
+            const data = [
+                ['Tier', 'End User Price', 'Dev Cost', 'Your Profit', 'Distribution Price', 'Distributor Profit', 'Dist Margin'],
+                [
+                    'Tier 1 - Basic',
+                    document.getElementById('tier1-end-price').value,
+                    document.getElementById('tier1-dev-cost').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier1-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier1-dist-price').textContent.replace(/[₹,]/g, ''),
+                    document.getElementById('tier1-dist-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier1-dist-profit').textContent.match(/\d+\.\d+%/)?.[0] || ''
+                ],
+                [
+                    'Tier 2 - Standard',
+                    document.getElementById('tier2-end-price').value,
+                    document.getElementById('tier2-dev-cost').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier2-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier2-dist-price').textContent.replace(/[₹,]/g, ''),
+                    document.getElementById('tier2-dist-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier2-dist-profit').textContent.match(/\d+\.\d+%/)?.[0] || ''
+                ],
+                [
+                    'Tier 3 - Premium',
+                    document.getElementById('tier3-end-price').value,
+                    document.getElementById('tier3-dev-cost').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier3-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier3-dist-price').textContent.replace(/[₹,]/g, ''),
+                    document.getElementById('tier3-dist-profit').textContent.replace(/[₹,%]/g, '').trim().split(' ')[0],
+                    document.getElementById('tier3-dist-profit').textContent.match(/\d+\.\d+%/)?.[0] || ''
+                ]
+            ];
+            
+            const csv = data.map(row => row.join(',')).join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'saas-pricing-strategy.csv';
+            a.click();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            calculateTier(1);
+            calculateTier(2);
+            calculateTier(3);
+        };
+    </script>
+</body>
+</html>
